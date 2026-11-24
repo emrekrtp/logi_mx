@@ -37,15 +37,21 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="MX Backlight Control" FontSize="14" FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimary}"/>
-                        <TextBlock Text="Logitech HID++ Arka Işık Kontrolü" FontSize="11"
+                        <TextBlock Text="{Binding Loc.AppSubtitle}" FontSize="11"
                                    Foreground="{StaticResource TextSecondary}"/>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource TitleBarButton}" Content="—" ToolTip="Tepsiye Küçült"
+                    <Button Style="{StaticResource TitleBarButton}"
+                            Command="{Binding ToggleLanguageCommand}"
+                            Content="{Binding Loc.LanguageToggleLabel}"
+                            FontSize="11" FontWeight="SemiBold"
+                            ToolTip="{Binding Loc.LanguageToggleTooltip}"
+                            Margin="0,0,4,0"/>
+                    <Button Style="{StaticResource TitleBarButton}" Content="—" ToolTip="{Binding Loc.MinimizeTooltip}"
                             Click="MinimizeButton_Click" Margin="0,0,4,0"/>
-                    <Button Style="{StaticResource TitleBarButton}" Content="✕" ToolTip="Kapat"
+                    <Button Style="{StaticResource TitleBarButton}" Content="✕" ToolTip="{Binding Loc.CloseTooltip}"
                             Click="CloseButton_Click"/>
                 </StackPanel>
             </Grid>
@@ -90,25 +96,25 @@
                     <Button Grid.Row="0" Grid.Column="1"
                             Style="{StaticResource TitleBarButton}"
                             Command="{Binding ReconnectCommand}"
-                            Content="↻" FontSize="15" ToolTip="Klavyeyi Yeniden Tara"/>
+                            Content="↻" FontSize="15" ToolTip="{Binding Loc.RescanTooltip}"/>
 
                     <!-- Telemetry Pills -->
                     <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0">
                         <Border Background="#232733" CornerRadius="6" Padding="8,4" Margin="0,0,6,4">
                             <TextBlock FontSize="11.5" Foreground="{StaticResource TextSecondary}">
-                                <Run Text="Bağlantı: "/>
+                                <Run Text="{Binding Loc.ConnectionPrefix, Mode=OneWay}"/>
                                 <Run Text="{Binding ConnectionLabel, Mode=OneWay}" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
                             </TextBlock>
                         </Border>
                         <Border Background="#232733" CornerRadius="6" Padding="8,4" Margin="0,0,6,4">
                             <TextBlock FontSize="11.5" Foreground="{StaticResource TextSecondary}">
-                                <Run Text="Pil: "/>
+                                <Run Text="{Binding Loc.BatteryPrefix, Mode=OneWay}"/>
                                 <Run Text="{Binding BatteryLabel, Mode=OneWay}" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
                             </TextBlock>
                         </Border>
                         <Border Background="#232733" CornerRadius="6" Padding="8,4" Margin="0,0,0,4">
                             <TextBlock FontSize="11.5" Foreground="{StaticResource TextSecondary}">
-                                <Run Text="Işık: "/>
+                                <Run Text="{Binding Loc.LightPrefix, Mode=OneWay}"/>
                                 <Run Text="{Binding HardwareLevelLabel, Mode=OneWay}" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
                             </TextBlock>
                         </Border>
@@ -124,7 +130,7 @@
             </Border>
 
             <!-- Mode Selector Section -->
-            <TextBlock Text="ARKA IŞIK MODU" FontSize="11" FontWeight="SemiBold"
+            <TextBlock Text="{Binding Loc.ModeSectionTitle}" FontSize="11" FontWeight="SemiBold"
                        Foreground="{StaticResource TextSecondary}" Margin="2,0,0,8"/>
 
             <UniformGrid Columns="3" Margin="0,0,0,10">
@@ -153,8 +159,8 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="Sürekli Açık" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Always On" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Loc.AlwaysOnTitle}" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Loc.AlwaysOnSub}" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -183,8 +189,8 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="Sürekli Kapalı" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Always Off" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Loc.AlwaysOffTitle}" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Loc.AlwaysOffSub}" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -213,8 +219,8 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="Otomatik" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Varsayılan" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Loc.AutoTitle}" FontSize="12.5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Loc.AutoSub}" FontSize="10.5" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Button>
             </UniformGrid>
@@ -227,7 +233,7 @@
             </Border>
 
             <!-- Settings Card -->
-            <TextBlock Text="AYARLAR" FontSize="11" FontWeight="SemiBold"
+            <TextBlock Text="{Binding Loc.SettingsSectionTitle}" FontSize="11" FontWeight="SemiBold"
                        Foreground="{StaticResource TextSecondary}" Margin="2,0,0,8"/>
 
             <Border Background="{StaticResource BgCard}"
@@ -248,7 +254,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Canlı Tutma Yenileme Aralığı (Sürekli Açık)"
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.KeepAliveTitle}"
                                    FontSize="12.5" Foreground="{StaticResource TextPrimary}"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding KeepAliveLabel}"
                                    FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource AccentCyan}"/>
@@ -259,7 +265,7 @@
                                 Margin="0,6,0,0"/>
 
                         <TextBlock Grid.Row="2" Grid.ColumnSpan="2"
-                                   Text="Pil modunda 3–4 sn, USB kablo takılıyken 60–180 sn önerilir."
+                                   Text="{Binding Loc.KeepAliveHint}"
                                    FontSize="10.5" Foreground="#6E778B" Margin="0,4,0,0"/>
                     </Grid>
 
@@ -275,7 +281,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Parlaklık Seviyesi"
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.BrightnessTitle}"
                                    FontSize="12.5" Foreground="{StaticResource TextPrimary}"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HardwareLevelLabel}"
                                    FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource AccentCyan}"/>
@@ -294,17 +300,17 @@
                     <Separator Background="{StaticResource BorderSubtle}" Margin="0,0,0,12"/>
 
                     <CheckBox Style="{StaticResource ToggleSwitch}"
-                              Content="Kapatınca sistem tepsisinde çalışmaya devam et"
+                              Content="{Binding Loc.MinimizeToTrayLabel}"
                               IsChecked="{Binding MinimizeToTray}"
                               Margin="0,0,0,10"/>
 
                     <CheckBox Style="{StaticResource ToggleSwitch}"
-                              Content="Windows başlangıcında otomatik başlat"
+                              Content="{Binding Loc.LaunchAtStartupLabel}"
                               IsChecked="{Binding LaunchAtStartup}"
                               Margin="0,0,0,10"/>
 
                     <CheckBox Style="{StaticResource ToggleSwitch}"
-                              Content="Global kısayol tuşu (Ctrl + Alt + L)"
+                              Content="{Binding Loc.GlobalHotkeyLabel}"
                               IsChecked="{Binding EnableGlobalHotkey}"/>
                 </StackPanel>
             </Border>

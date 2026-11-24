@@ -13,6 +13,10 @@ public sealed class TrayIconService : IDisposable
     private readonly ToolStripMenuItem _itemAlwaysOff;
     private readonly ToolStripMenuItem _itemAuto;
     private readonly ToolStripMenuItem _itemStatus;
+    private readonly ToolStripMenuItem _itemShow;
+    private readonly ToolStripMenuItem _itemExit;
+    private BacklightMode _lastMode = BacklightMode.Auto;
+    private KeyboardState _lastState = new();
     private Icon? _currentIcon;
     private bool _disposed;
 
@@ -26,6 +30,7 @@ public sealed class TrayIconService : IDisposable
 
     public TrayIconService()
     {
+        var loc = LocalizationService.Instance;
         var menu = new ContextMenuStrip();
 
         _itemStatus = new ToolStripMenuItem("MX Backlight Control")
@@ -33,12 +38,12 @@ public sealed class TrayIconService : IDisposable
             Enabled = false
         };
 
-        _itemAlwaysOn = new ToolStripMenuItem("☀  Sürekli Açık (Always On)", null, (_, _) => ModeSelected?.Invoke(BacklightMode.AlwaysOn));
-        _itemAlwaysOff = new ToolStripMenuItem("🌙  Sürekli Kapalı (Always Off)", null, (_, _) => ModeSelected?.Invoke(BacklightMode.AlwaysOff));
-        _itemAuto = new ToolStripMenuItem("✨  Otomatik (Varsayılan)", null, (_, _) => ModeSelected?.Invoke(BacklightMode.Auto));
+        _itemAlwaysOn = new ToolStripMenuItem(loc.TrayAlwaysOn, null, (_, _) => ModeSelected?.Invoke(BacklightMode.AlwaysOn));
+        _itemAlwaysOff = new ToolStripMenuItem(loc.TrayAlwaysOff, null, (_, _) => ModeSelected?.Invoke(BacklightMode.AlwaysOff));
+        _itemAuto = new ToolStripMenuItem(loc.TrayAuto, null, (_, _) => ModeSelected?.Invoke(BacklightMode.Auto));
 
-        var itemShow = new ToolStripMenuItem("Pencereyi Göster", null, (_, _) => ShowWindowRequested?.Invoke());
-        var itemExit = new ToolStripMenuItem("Çıkış", null, (_, _) => ExitRequested?.Invoke());
+        _itemShow = new ToolStripMenuItem(loc.TrayShowWindow, null, (_, _) => ShowWindowRequested?.Invoke());
+        _itemExit = new ToolStripMenuItem(loc.TrayExit, null, (_, _) => ExitRequested?.Invoke());
 
         menu.Items.Add(_itemStatus);
         menu.Items.Add(new ToolStripSeparator());
@@ -46,8 +51,8 @@ public sealed class TrayIconService : IDisposable
         menu.Items.Add(_itemAlwaysOff);
         menu.Items.Add(_itemAuto);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(itemShow);
-        menu.Items.Add(itemExit);
+        menu.Items.Add(_itemShow);
+        menu.Items.Add(_itemExit);
 
         _notifyIcon = new NotifyIcon
         {
@@ -60,6 +65,23 @@ public sealed class TrayIconService : IDisposable
         UpdateState(BacklightMode.Auto, new KeyboardState());
     }
 
+    public void RefreshLocalization()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        var loc = LocalizationService.Instance;
+        _itemAlwaysOn.Text = loc.TrayAlwaysOn;
+        _itemAlwaysOff.Text = loc.TrayAlwaysOff;
+        _itemAuto.Text = loc.TrayAuto;
+        _itemShow.Text = loc.TrayShowWindow;
+        _itemExit.Text = loc.TrayExit;
+
+        UpdateState(_lastMode, _lastState);
+    }
+
     public void UpdateState(BacklightMode mode, KeyboardState state)
     {
         if (_disposed)
@@ -67,21 +89,25 @@ public sealed class TrayIconService : IDisposable
             return;
         }
 
+        _lastMode = mode;
+        _lastState = state;
+
+        var loc = LocalizationService.Instance;
         _itemAlwaysOn.Checked = mode == BacklightMode.AlwaysOn;
         _itemAlwaysOff.Checked = mode == BacklightMode.AlwaysOff;
         _itemAuto.Checked = mode == BacklightMode.Auto;
 
         string modeText = mode switch
         {
-            BacklightMode.AlwaysOn => "Sürekli Açık",
-            BacklightMode.AlwaysOff => "Sürekli Kapalı",
-            _ => "Otomatik"
+            BacklightMode.AlwaysOn => loc.AlwaysOnTitle,
+            BacklightMode.AlwaysOff => loc.AlwaysOffTitle,
+            _ => loc.AutoTitle
         };
 
-        string batText = state.IsConnected && state.HasBattery ? $" • %{state.BatteryPercent}" : string.Empty;
+        string batText = state.IsConnected && state.HasBattery ? $" • {loc.FormatBatteryShort(state.BatteryPercent)}" : string.Empty;
         _itemStatus.Text = state.IsConnected
             ? $"{state.DeviceName}{batText}"
-            : "Klavye bağlı değil";
+            : loc.TrayNotConnected;
 
         string tooltip = $"MX Backlight: {modeText}{batText}";
         _notifyIcon.Text = tooltip.Length > 63 ? tooltip[..63] : tooltip;

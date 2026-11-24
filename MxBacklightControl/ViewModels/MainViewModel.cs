@@ -40,10 +40,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public event Action? ShowWindowRequested;
     public event Action? ExitRequested;
 
+    public LocalizationService Loc => LocalizationService.Instance;
+
     public ICommand SetAlwaysOnCommand { get; }
     public ICommand SetAlwaysOffCommand { get; }
     public ICommand SetAutoCommand { get; }
     public ICommand ReconnectCommand { get; }
+    public ICommand ToggleLanguageCommand { get; }
 
     public MainViewModel()
     {
@@ -51,6 +54,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _startupService = new StartupService();
         _settings = _settingsService.Load();
         _settings.LaunchAtStartup = _startupService.IsEnabled();
+
+        Loc.SetLanguage(LocalizationService.ParseLanguageCode(_settings.Language));
 
         _backlightService = new LogitechBacklightService();
         _trayService = new TrayIconService();
@@ -60,7 +65,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         SetAlwaysOffCommand = new RelayCommand(_ => SelectedMode = BacklightMode.AlwaysOff);
         SetAutoCommand = new RelayCommand(_ => SelectedMode = BacklightMode.Auto);
         ReconnectCommand = new RelayCommand(_ => _backlightService.RequestReconnect());
+        ToggleLanguageCommand = new RelayCommand(_ => ToggleLanguage());
 
+        Loc.LanguageChanged += OnLanguageChanged;
         _backlightService.StateChanged += OnKeyboardStateChanged;
 
         _trayService.ModeSelected += mode => RunOnUi(() => SelectedMode = mode);
@@ -69,7 +76,33 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         _hotkeyService.HotkeyPressed += () => RunOnUi(CycleAlwaysOnOff);
 
+        _trayService.UpdateState(SelectedMode, _keyboardState);
         _backlightService.Start(_settings);
+    }
+
+    private void ToggleLanguage()
+    {
+        Loc.ToggleLanguage();
+        _settings.Language = Loc.LanguageCode;
+        _settingsService.Save(_settings);
+    }
+
+    private void OnLanguageChanged(AppLanguage _)
+    {
+        RunOnUi(() =>
+        {
+            _trayService.RefreshLocalization();
+            OnPropertyChanged(nameof(ActiveModeTitle));
+            OnPropertyChanged(nameof(ActiveModeSubtitle));
+            OnPropertyChanged(nameof(KeepAliveLabel));
+            OnPropertyChanged(nameof(DeviceName));
+            OnPropertyChanged(nameof(ConnectionLabel));
+            OnPropertyChanged(nameof(StatusMessage));
+            OnPropertyChanged(nameof(BatteryLabel));
+            OnPropertyChanged(nameof(ProtocolLabel));
+            OnPropertyChanged(nameof(HardwareLevelLabel));
+            OnPropertyChanged(nameof(BrightnessHintText));
+        });
     }
 
     public void AttachWindow(Window window)
@@ -108,16 +141,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public string ActiveModeTitle => SelectedMode switch
     {
-        BacklightMode.AlwaysOn => "Sürekli Açık",
-        BacklightMode.AlwaysOff => "Sürekli Kapalı",
-        _ => "Otomatik (Varsayılan)"
+        BacklightMode.AlwaysOn => Loc.AlwaysOnTitle,
+        BacklightMode.AlwaysOff => Loc.AlwaysOffTitle,
+        _ => Loc.AutoFullTitle
     };
 
     public string ActiveModeSubtitle => SelectedMode switch
     {
-        BacklightMode.AlwaysOn => "Klavye ışığı zaman aşımına uğramadan sürekli açık tutulur.",
-        BacklightMode.AlwaysOff => "Yakınlık sensörü ve tuş basımı ışığı açamaz; tamamen kapalıdır.",
-        _ => "Logitech'in standart yakınlık ve ortam ışığı sensörü davranışı aktiftir."
+        BacklightMode.AlwaysOn => Loc.AlwaysOnBanner,
+        BacklightMode.AlwaysOff => Loc.AlwaysOffBanner,
+        _ => Loc.AutoBanner
     };
 
     public int KeepAliveIntervalSeconds
@@ -138,7 +171,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
     }
 
-    public string KeepAliveLabel => $"{KeepAliveIntervalSeconds} sn";
+    public string KeepAliveLabel => Loc.FormatKeepAlive(KeepAliveIntervalSeconds);
 
     public int ManualBrightnessLevel
     {
@@ -196,27 +229,53 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     public bool IsConnected => _keyboardState.IsConnected;
-    public string DeviceName => _keyboardState.DeviceName;
-    public string ConnectionLabel => _keyboardState.ConnectionLabel;
-    public string StatusMessage => _keyboardState.StatusMessage;
+
+    public string DeviceName => _keyboardState.IsConnected && !string.IsNullOrWhiteSpace(_keyboardState.DeviceName)
+        ? _keyboardState.DeviceName
+        : _keyboardState.StatusKind switch
+        {
+            KeyboardStatusKind.Searching => Loc.DeviceSearching,
+            KeyboardStatusKind.NotFound => Loc.DeviceNotFound,
+            _ => Loc.DeviceDisconnected
+        };
+
+    public string ConnectionLabel => _keyboardState.ConnectionType switch
+    {
+        ConnectionType.BluetoothLE => "Bluetooth LE",
+        ConnectionType.LogiBolt => "Logi Bolt",
+        ConnectionType.Unifying => "Unifying",
+        ConnectionType.UsbDirect => "USB",
+        _ => Loc.DisconnectedLabel
+    };
+
+    public string StatusMessage => _keyboardState.StatusKind switch
+    {
+        KeyboardStatusKind.Searching => Loc.StatusSearching,
+        KeyboardStatusKind.Reconnecting => Loc.StatusReconnecting,
+        KeyboardStatusKind.DisconnectedRescanning => Loc.StatusDisconnectedRescanning,
+        KeyboardStatusKind.SleepingOrDisconnected => Loc.StatusSleepingOrDisconnected,
+        KeyboardStatusKind.NotFound => Loc.StatusNotFound,
+        KeyboardStatusKind.CommunicationError => Loc.FormatCommunicationError(_keyboardState.ErrorDetail),
+        KeyboardStatusKind.ModeAlwaysOn => Loc.StatusModeAlwaysOn,
+        KeyboardStatusKind.ModeAlwaysOff => Loc.StatusModeAlwaysOff,
+        _ => Loc.StatusModeAuto
+    };
 
     public string BatteryLabel => !_keyboardState.IsConnected
         ? "--"
         : !_keyboardState.HasBattery
-            ? "Bilinmiyor"
-            : _keyboardState.IsCharging
-                ? $"%{_keyboardState.BatteryPercent} (Şarj oluyor)"
-                : $"%{_keyboardState.BatteryPercent}";
+            ? Loc.UnknownLabel
+            : Loc.FormatBattery(_keyboardState.BatteryPercent, _keyboardState.IsCharging);
 
     public string ProtocolLabel => !_keyboardState.IsConnected
-        ? "Bağlantı bekleniyor"
+        ? Loc.WaitingConnection
         : $"HID++ {_keyboardState.ProtocolMajor}.{_keyboardState.ProtocolMinor} • 0x1982 v{_keyboardState.BacklightFeatureVersion}";
 
     public string HardwareLevelLabel => !_keyboardState.IsConnected
         ? "--"
         : !_keyboardState.HardwareBacklightEnabled
-            ? "Kapalı (0)"
-            : $"Seviye {_keyboardState.CurrentBrightnessLevel} / {_keyboardState.MaxBrightnessLevels}";
+            ? Loc.BacklightOffZero
+            : Loc.FormatLevel(_keyboardState.CurrentBrightnessLevel, _keyboardState.MaxBrightnessLevels);
 
     public bool SupportsManualBrightnessSlider => _keyboardState.IsConnected && _keyboardState.BacklightFeatureVersion >= 3;
 
@@ -236,10 +295,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     public string BrightnessHintText => !_keyboardState.IsConnected
-        ? "Klavye bağlandığında parlaklık seviyesi burada görünür."
+        ? Loc.BrightnessHintDisconnected
         : SupportsManualBrightnessSlider
-            ? "Kaydırıcı ile klavye parlaklığını doğrudan ayarlayabilirsiniz (1–7)."
-            : "MX Keys (0x1982 v1) firmware'i parlaklığın yazılımdan değiştirilmesine izin vermez. Klavyedeki F6 / F7 tuşlarıyla ayarlayabilirsiniz; mevcut seviye burada canlı gösterilir.";
+            ? Loc.BrightnessHintInteractive
+            : Loc.BrightnessHintReadOnly;
 
     private void CycleAlwaysOnOff()
     {
@@ -292,6 +351,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public void Dispose()
     {
+        Loc.LanguageChanged -= OnLanguageChanged;
         _hotkeyService.Dispose();
         _trayService.Dispose();
         _backlightService.Dispose();

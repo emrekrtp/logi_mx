@@ -9,4 +9,5 @@ public sealed class AppSettings
     public bool StartMinimized { get; set; } = false;
     public bool LaunchAtStartup { get; set; } = false;
     public bool EnableGlobalHotkey { get; set; } = true;
+    public string Language { get; set; } = string.Empty;
 }

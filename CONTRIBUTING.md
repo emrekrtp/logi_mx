@@ -1,27 +1,27 @@
-# Katkıda Bulunma (Contributing)
+# Contributing
 
-**MX Backlight Control** projesine katkıda bulunmak istediğiniz için teşekkürler!
+Thank you for your interest in contributing to **MX Backlight Control**!
 
-## Nasıl Katkıda Bulunabilirsiniz?
+## How to Contribute
 
-1. Bu repoyu **fork** edin.
-2. Yeni bir dal (branch) oluşturun:
+1. **Fork** this repository.
+2. Create a new feature or fix branch:
    ```bash
-   git checkout -b feat/yeni-ozellik
+   git checkout -b feat/your-feature-name
    ```
-3. Değişikliklerinizi yapın ve projenin derlendiğinden emin olun:
+3. Make your changes and verify that the solution builds cleanly:
    ```powershell
    dotnet build MxBacklightControl.sln -c Release
    ```
-4. Değişikliklerinizi açıklayıcı bir mesajla commit edin:
+4. Commit your changes with a clear commit message:
    ```bash
-   git commit -m "feat: yeni özellik açıklaması"
+   git commit -m "feat: add your feature description"
    ```
-5. Dalınızı kendi fork'unuza push edin ve bir **Pull Request** açın.
+5. Push your branch to your fork and open a **Pull Request**.
 
-## Hata Bildirimi & Özellik İstekleri
+## Reporting Issues & Feature Requests
 
-Bir hata bulursanız veya yeni bir klavye modeli / özellik eklemek isterseniz lütfen bir **Issue** açın. Mümkünse aşağıdaki bilgileri ekleyin:
-- Klavye modeli (örn. MX Keys S, MX Mechanical Mini)
-- Bağlantı türü (Bluetooth LE, Logi Bolt, Unifying, USB)
-- Windows sürümü ve uygulama içi durum/hata çıktısı
+If you encounter a bug or want to request support for a specific keyboard model, please open an **Issue** and include:
+- Keyboard model (e.g., MX Keys S, MX Mechanical Mini)
+- Connection type (Bluetooth LE, Logi Bolt, Unifying, USB)
+- Windows version and any status/error message shown in the app

@@ -2,46 +2,46 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4.svg)](https://dotnet.microsoft.com/)
-[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6.svg)](#gereksinimler)
+[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6.svg)](#requirements)
 
-Logitech MX serisi klavyelerin (MX Keys, MX Keys S, MX Keys Mini, MX Mechanical vb.) arka ışığını **Sürekli Açık**, **Sürekli Kapalı** veya **Otomatik (Varsayılan)** modlarında kontrol etmek için sıfırdan geliştirilmiş yerel Windows (C# / .NET 9 WPF + Windows HID API) uygulaması.
+A native Windows application (C# / .NET 9 WPF + Windows HID API) built from scratch to control the keyboard backlight of Logitech MX series keyboards (MX Keys, MX Keys S, MX Keys Mini, MX Mechanical, etc.) in **Always On**, **Always Off**, or **Auto (Default)** modes.
 
-## Özellikler
+## Features
 
-- **Sıfırdan Yerel HID++ 2.0 / 4.5 Motoru:** Harici sürücü veya 3. parti HID kütüphanesi kullanmadan doğrudan Windows `setupapi.dll`, `hid.dll` ve `kernel32.dll` P/Invoke katmanı ile klavyeyle haberleşir.
-- **3 Kontrol Modu:**
-  - **Sürekli Açık (Always On):** Güç tasarrufu / ortam sensörü kesintisini devre dışı bırakır ve yapılandırılabilir canlı tutma (keep-alive) döngüsüyle klavye ışığının sönmesini engeller.
-  - **Sürekli Kapalı (Always Off):** Donanım seviyesinde arka ışığı kapatır; el yakınlık sensörü veya tuş basımı ışığı tekrar açmaz. Uyku/yeniden bağlanma sonrası da kapalı tutar.
-  - **Otomatik (Varsayılan):** Logitech'in standart yakınlık ve ortam ışığı sensörü davranışını geri yükler.
-- **Geniş Bağlantı Desteği:** Bluetooth LE (`0xFF43`), Logi Bolt (`0xC548`), Unifying (`0xC52B`) ve USB bağlantıları destekler.
-- **Canlı Donanım Bilgisi:** Klavye adı, bağlantı türü, pil yüzdesi, aktif parlaklık seviyesi ve HID++ protokol sürümü.
-- **Sistem Tepsisi (Tray) & Global Kısayol:** Arka planda sessizce çalışır; sağ tık menüsünden veya `Ctrl + Alt + L` kısayoluyla anında mod değiştirilebilir.
-- **Windows ile Otomatik Başlatma:** İsteğe bağlı olarak Windows açılışında tepside başlar.
+- **Native HID++ 2.0 / 4.5 Engine:** Communicates directly with the keyboard via Windows `setupapi.dll`, `hid.dll`, and `kernel32.dll` P/Invoke — no external drivers or third-party HID libraries required.
+- **3 Backlight Control Modes:**
+  - **Always On:** Disables power-saving / ambient sensor shutoff and uses a configurable keep-alive loop to prevent the backlight from fading out.
+  - **Always Off:** Locks the backlight off at the hardware level; hand proximity sensors and keystrokes will not turn it back on, even after sleep or reconnect.
+  - **Auto (Default):** Restores Logitech's default proximity and ambient light sensor behavior.
+- **Broad Connectivity Support:** Works over Bluetooth LE (`0xFF43`), Logi Bolt (`0xC548`), Unifying (`0xC52B`), and direct USB connections.
+- **Live Hardware Telemetry:** Displays keyboard model name, connection type, battery percentage & charging state, live brightness level, and HID++ protocol version.
+- **System Tray & Global Hotkey:** Runs quietly in the background; switch modes anytime from the tray menu or with `Ctrl + Alt + L`.
+- **English & Turkish UI:** Instant live language switching (`EN` / `TR` button in the title bar) with automatic OS language detection and persistent settings.
+- **Launch at Windows Startup:** Optional automatic startup minimized to the system tray.
 
-## Çalıştırma & Derleme
+## Requirements
+
+- Windows 10 / 11
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (to build from source)
+
+## Build & Run
 
 ```powershell
 dotnet build MxBacklightControl.sln -c Release
 ```
 
-Derlenen uygulama yolu:
+Compiled executable path:
 `MxBacklightControl\bin\Release\net9.0-windows\MxBacklightControl.exe`
 
-Doğrudan çalıştırmak için:
+To run directly:
 ```powershell
 dotnet run --project MxBacklightControl\MxBacklightControl.csproj -c Release
 ```
 
-## Gereksinimler
+## Contributing
 
-- Windows 10 / 11
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (kaynak koddan derlemek için)
+Contributions are welcome! Please check [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting issues and pull requests.
 
-## Katkıda Bulunma
+## License
 
-Katkılarınız memnuniyetle karşılanır! Ayrıntılar için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına göz atabilirsiniz.
-
-## Lisans
-
-Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak lisanslanmıştır.
-
+This project is open source and licensed under the [MIT License](LICENSE).

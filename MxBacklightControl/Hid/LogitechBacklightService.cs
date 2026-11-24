@@ -132,7 +132,7 @@ public sealed class LogitechBacklightService : IDisposable
 
                 if (needReconnect)
                 {
-                    DisconnectSession("Klavye yeniden bağlanıyor...");
+                    DisconnectSession(KeyboardStatusKind.Reconnecting);
                 }
 
                 if (_session is null)
@@ -169,7 +169,7 @@ public sealed class LogitechBacklightService : IDisposable
                         _consecutiveErrors++;
                         if (_consecutiveErrors >= 2)
                         {
-                            DisconnectSession("Klavye bağlantısı kesildi, yeniden aranıyor...");
+                            DisconnectSession(KeyboardStatusKind.DisconnectedRescanning);
                             await WaitAsync(TimeSpan.FromSeconds(2), ct);
                             continue;
                         }
@@ -193,7 +193,7 @@ public sealed class LogitechBacklightService : IDisposable
                         _consecutiveErrors++;
                         if (_consecutiveErrors >= 2)
                         {
-                            DisconnectSession("Klavye uyku modunda veya bağlantısı kesildi...");
+                            DisconnectSession(KeyboardStatusKind.SleepingOrDisconnected);
                             await WaitAsync(TimeSpan.FromSeconds(2), ct);
                             continue;
                         }
@@ -215,7 +215,7 @@ public sealed class LogitechBacklightService : IDisposable
             }
             catch (Exception ex)
             {
-                DisconnectSession($"İletişim hatası: {ex.Message}");
+                DisconnectSession(KeyboardStatusKind.CommunicationError, ex.Message);
                 try
                 {
                     await WaitAsync(TimeSpan.FromSeconds(3), ct);
@@ -258,9 +258,8 @@ public sealed class LogitechBacklightService : IDisposable
             PublishState(new KeyboardState
             {
                 IsConnected = false,
-                DeviceName = "Logitech MX Klavye Bulunamadı",
                 ConnectionType = ConnectionType.Unknown,
-                StatusMessage = "Klavye Bluetooth, Logi Bolt veya Unifying ile bağlı değil."
+                StatusKind = KeyboardStatusKind.NotFound
             });
             return;
         }
@@ -342,11 +341,11 @@ public sealed class LogitechBacklightService : IDisposable
             }
         }
 
-        string statusText = mode switch
+        KeyboardStatusKind statusKind = mode switch
         {
-            BacklightMode.AlwaysOn => "Sürekli Açık modu aktif — arka ışık canlı tutuluyor",
-            BacklightMode.AlwaysOff => "Sürekli Kapalı modu aktif — arka ışık kilitli kapalı",
-            _ => "Otomatik (Logitech varsayılanı) — yakınlık ve ortam sensörü aktif"
+            BacklightMode.AlwaysOn => KeyboardStatusKind.ModeAlwaysOn,
+            BacklightMode.AlwaysOff => KeyboardStatusKind.ModeAlwaysOff,
+            _ => KeyboardStatusKind.ModeAuto
         };
 
         var prev = CurrentState;
@@ -367,14 +366,14 @@ public sealed class LogitechBacklightService : IDisposable
             HasBattery = bat is not null || prev.HasBattery,
             BatteryPercent = bat?.Percent ?? prev.BatteryPercent,
             IsCharging = bat?.IsCharging ?? prev.IsCharging,
-            StatusMessage = statusText,
+            StatusKind = statusKind,
             LastUpdated = DateTime.Now
         };
 
         PublishState(next);
     }
 
-    private void DisconnectSession(string message)
+    private void DisconnectSession(KeyboardStatusKind statusKind, string? errorDetail = null)
     {
         if (_session is not null)
         {
@@ -385,9 +384,9 @@ public sealed class LogitechBacklightService : IDisposable
         PublishState(new KeyboardState
         {
             IsConnected = false,
-            DeviceName = "Klavye Bağlı Değil",
             ConnectionType = ConnectionType.Unknown,
-            StatusMessage = message,
+            StatusKind = statusKind,
+            ErrorDetail = errorDetail,
             LastUpdated = DateTime.Now
         });
     }

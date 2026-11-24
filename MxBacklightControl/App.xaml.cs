@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Windows;
+using MxBacklightControl.Services;
 
 namespace MxBacklightControl;
 
@@ -11,11 +12,14 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
+        var savedSettings = new SettingsService().Load();
+        LocalizationService.Instance.SetLanguage(LocalizationService.ParseLanguageCode(savedSettings.Language));
+
         _singleInstanceMutex = new Mutex(true, "Global\\MxBacklightControl_SingleInstance", out bool createdNew);
         if (!createdNew)
         {
             System.Windows.MessageBox.Show(
-                "MX Backlight Control zaten arka planda çalışıyor.\nSistem tepsisindeki (saat yanı) simgeden açabilirsiniz.",
+                LocalizationService.Instance.AlreadyRunningMessage,
                 "MX Backlight Control",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
