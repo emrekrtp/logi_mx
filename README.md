@@ -19,6 +19,13 @@ A native Windows application (C# / .NET 9 WPF + Windows HID API) built from scra
 - **English & Turkish UI:** Instant live language switching (`EN` / `TR` button in the title bar) with automatic OS language detection and persistent settings.
 - **Launch at Windows Startup:** Optional automatic startup minimized to the system tray.
 
+## Download
+
+Download the latest pre-built Windows executable (`.exe`) from the [Releases](https://github.com/emrekrtp/logi_mx/releases/latest) page:
+
+- **`MxBacklightControl-v1.0.0-win-x64-standalone.exe`** — Self-contained single-file executable (no .NET installation required).
+- **`MxBacklightControl-v1.0.0-win-x64.exe`** — Lightweight single-file executable (requires [.NET 9.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0)).
+
 ## Requirements
 
 - Windows 10 / 11
