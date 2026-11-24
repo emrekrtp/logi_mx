@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>MxBacklightControl</AssemblyName>
+    <RootNamespace>MxBacklightControl</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>MX Backlight Control</Authors>
+    <Description>Logitech MX klavyeler için sıfırdan geliştirilmiş HID++ 2.0 arka ışık kontrol uygulaması</Description>
+  </PropertyGroup>
+
+</Project>
